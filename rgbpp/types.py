@@ -6,6 +6,8 @@ Hex = NewType('Hex', str)
 Version = NewType('Version', str)
 BtcAddress = NewType('BtcAddress', str)
 Json = NewType('Json', str)
+# 'completed' | 'failed' | 'delayed' | 'active' | 'waiting'
+State = NewType('State', str)
 
 RgbppTransferReq = TypedDict('RgbppTransferReq', {
     'xudt_type_args': Hex,
@@ -18,4 +20,14 @@ RgbppTransferReq = TypedDict('RgbppTransferReq', {
 RgbppTransferResp = TypedDict('RgbppTransferResp', {
     'ckb_virtual_tx_result': Json,
     'btc_psbt_hex': Hex,
+})
+
+
+RgbppTxStateReq = TypedDict('RgbppTxStateReq', {
+    'btc_tx_id': Hex,
+})
+
+RgbppTxStateResp = TypedDict('RgbppTxStateReq', {
+    'state': State,
+    'failed_reason': str
 })

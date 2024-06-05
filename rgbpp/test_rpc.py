@@ -1,3 +1,5 @@
+import json
+
 from unittest import TestCase
 from .rpc import rpc
 
@@ -13,6 +15,16 @@ class TestRpc(TestCase):
             'from_btc_address': 'tb1qvt7p9g6mw70sealdewtfp0sekquxuru6j3gwmt',
             'to_btc_address': 'tb1qvt7p9g6mw70sealdewtfp0sekquxuru6j3gwmt'
         }
-        print('request: ', request)
         response = rpc.generate_rgbpp_transfer_tx(request)
-        print('response: ', response)
+        # print('response: ', response)
+        self.assertEqual(len(response["btc_psbt_hex"]) > 10, True)
+
+        data = json.loads(response["ckb_virtual_tx_result"])
+        self.assertEqual(data["ckbRawTx"]["version"], "0x0")
+
+    def test_get_rgbpp_tx_state(self):
+        request = {
+            'btc_tx_id': 'fb4ebf0f4f9c9fc32b22c89cac7eccd7364d013f4a0422e402c70839c70339ca',
+        }
+        response = rpc.get_rgbpp_tx_state(request)
+        self.assertEqual(response["state"], "completed")
