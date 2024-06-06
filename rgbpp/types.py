@@ -1,4 +1,4 @@
-from typing import NewType, Sequence
+from typing import NewType, Sequence, Optional
 
 from typing_extensions import TypedDict
 
@@ -22,12 +22,17 @@ RgbppTransferResp = TypedDict('RgbppTransferResp', {
     'btc_psbt_hex': Hex,
 })
 
+RgbppTxStateParams = TypedDict('RgbppTxStateParams', {
+    'with_data': bool,
+})
 
 RgbppTxStateReq = TypedDict('RgbppTxStateReq', {
     'btc_tx_id': Hex,
+    'params': Optional[RgbppTxStateParams]
 })
 
 RgbppTxStateResp = TypedDict('RgbppTxStateReq', {
     'state': State,
-    'failed_reason': str
+    'failed_reason': Optional[str],
+    'data': Json
 })
