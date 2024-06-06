@@ -22,6 +22,11 @@ RgbppTransferResp = TypedDict('RgbppTransferResp', {
     'btc_psbt_hex': Hex,
 })
 
+RgbppTxReportReq = TypedDict('RgbppTxReportReq', {
+    'ckb_virtual_tx_result': Json,
+    'btc_tx_id': Hex
+})
+
 RgbppTxStateParams = TypedDict('RgbppTxStateParams', {
     'with_data': bool,
 })
@@ -31,7 +36,7 @@ RgbppTxStateReq = TypedDict('RgbppTxStateReq', {
     'params': Optional[RgbppTxStateParams]
 })
 
-RgbppTxStateResp = TypedDict('RgbppTxStateReq', {
+RgbppTxStateResp = TypedDict('RgbppTxStateResp', {
     'state': State,
     'failed_reason': Optional[str],
     'data': Json
