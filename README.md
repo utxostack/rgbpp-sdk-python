@@ -61,6 +61,14 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## Example Code
+
+See `examples/` directory. For instance this example calls the RGB++ SDK Service RPC to get RGB++ tx state:
+
+```
+PYTHONPATH=. python examples/rpc_state.py
+```
+
 ## Test
 
 ```shell
