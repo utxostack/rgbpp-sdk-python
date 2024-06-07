@@ -41,3 +41,8 @@ RgbppTxStateResp = TypedDict('RgbppTxStateResp', {
     'failed_reason': Optional[str],
     'data': Json
 })
+
+RgbppCkbTxHashReq = TypedDict('RgbppCkbTxHashReq', {
+    'btc_tx_id': Hex,
+})
+
