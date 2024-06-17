@@ -1,7 +1,5 @@
 from io import BytesIO
-from buidl.psbt import PSBT, serialize_binary_path, NamedHDPublicKey
-from buidl.hd import HDPrivateKey
-from buidl.helper import encode_varstr
+from buidl import HDPrivateKey, NamedHDPublicKey, PSBT, read_varstr, TxFetcher
 import requests
 import threading
 import time
@@ -9,91 +7,90 @@ import time
 from rgbpp.types import RgbppTransferReq, Hex
 from rgbpp.rpc import rpc
 
-# API endpoint for broadcasting transactions
-BROADCAST_URL = {
-    "mainnet": "https://blockstream.info/api",
-    "testnet": "https://blockstream.info/testnet/api",
-    "signet": "https://mempool.space/signet/api",
-}
+INTERVAL_TIME_SECONDS = 30
+# Please use your own BTC seed to generate private key
 SEED = b'Hello RGB++'
 
-def check_rgbpp_state(btc_tx_id: Hex):
-    print(f"Checking RGB++ state is running at {time.strftime('%Y-%m-%d %H:%M:%S')}")
-
-    response = rpc.get_rgbpp_tx_state({
-        'btc_tx_id': btc_tx_id
-    })
-    state = response["state"]
-
-    if (state != "completed" and state != 'failed'):
-        # Schedule the task to run again after 30 seconds
-        threading.Timer(30, check_rgbpp_state).start()
-    elif (state == "completed"):
-        ckb_tx_hash = rpc.get_rgbpp_ckb_tx_hash({'btc_tx_id': btc_tx_id})
-        print(f"RGB++ assets have been completed and CKB tx hash: {ckb_tx_hash}")
-    else:
-        print(f"RGB++ assets have been failed and the reason is {response["failed_reason"]}")
-    
-
-# Warning: The example is not ready which inlcudes todo list to be resolved
+# Please make sure you have enough BTC and RGB++ Assets, the example is only for RGB++ transfer on BTC.
+# You can get RGB++ assets using the [rgbpp-sdk examples](https://github.com/ckb-cell/rgbpp-sdk/tree/develop/examples/rgbpp/xudt)
 def transfer_rgbpp_on_btc(params: RgbppTransferReq):
+    # Please make sure the newtork of BTC is correct, including mainnet, testnet and signet
     network = "signet"
 
+    # HD Key (note the named_key path only contains 4 layers)
+    root_key = HDPrivateKey.from_seed(SEED, network)
+    root_named_key = NamedHDPublicKey.from_hd_priv(root_key, "m/84'/0'/0'")
+
+    # P2WPKH Address
+    p2wpkh_path = "m/84'/0'/0'/0"
+    p2wpkh_key = root_key.traverse(p2wpkh_path)
+    p2wpkh_child_0 = p2wpkh_key.child(0)
+    print(f'BTC P2WPKH Address: {p2wpkh_child_0.p2wpkh_address()}')
+
+    # Generate RGB++ CKB virtual tx and BTC PSBT hex from the rgbpp-sdk-service
     response = rpc.generate_rgbpp_transfer_tx(params)
     btc_psbt_hex = response['btc_psbt_hex']
     ckb_virtual_tx_result = response['ckb_virtual_tx_result']
+    print(f'CKB virtual tx result: {ckb_virtual_tx_result}')
 
-    print(f'btc_psbt_hex: {btc_psbt_hex}')
-
-    psbt = PSBT.parse(BytesIO(bytes.fromhex(btc_psbt_hex)))
-    psbt.tx_obj.network = network
-
-    tx_lookup = psbt.tx_obj.get_input_tx_lookup()
-    hd_key = HDPrivateKey.from_seed(SEED, network=network).child(0)
-    stream = BytesIO(
-        encode_varstr(hd_key.fingerprint() + serialize_binary_path("m/44'/1'/0'"))
-    )
-    hd = NamedHDPublicKey.parse(hd_key, stream)
-    psbt.update(tx_lookup, hd.bip44_lookup())
-
-    btc_address = hd_key.p2wpkh_address()
-    print(f'BTC P2WPKH Address: {btc_address}')
-
-    signed = psbt.sign(hd_key)
-    print(f'signed: {signed}')
-    # psbt.finalize()
-
-    # print(f'PSBT BTC TX: {psbt.tx_obj}')
-
-    # btc_tx = psbt.final_tx()
-
-    # signed_tx_hex = btc_tx.serialize().hex()
-
-    # # Broadcast the signed transaction
-    # response = requests.post(BROADCAST_URL[network], data=signed_tx_hex) 
-
-    # if response.status_code == 200:
-    #     print(f'Transaction broadcast successfully: {response.text}')
-    # else:
-    #     print(f'Error broadcasting transaction: {response.text}')
-
-    # # Repost the ckb virtual tx and ckb tx id to the Queue Service
-    # rpc.report_rgbpp_ckb_tx_btc_txid({
-    #     'ckb_virtual_tx_result': ckb_virtual_tx_result,
-    #     'btc_tx_id': "btc_tx_id"
-    # })
-
-    # check_rgbpp_state("btc_tx_id")
+    # Parse PSBT
+    psbt = PSBT.parse(BytesIO(bytes.fromhex(btc_psbt_hex)), network)
     
-    # # Keep the script running
-    # while True:
-    #     time.sleep(1)
-  
+    # Update lookup context
+    tx_lookup = psbt.tx_obj.get_input_tx_lookup()
+    pubkey_lookup = root_named_key.bip44_lookup()
+    psbt.update(tx_lookup, pubkey_lookup)
 
+    # Sign PSBT with the root_key
+    psbt.sign(root_key)
+
+    # Finalize PSBT and convert to TX
+    psbt.finalize()
+    btc_tx = psbt.final_tx()
+    signed_tx_hex = btc_tx.serialize().hex()
+    print(f"BTC signed tx: {signed_tx_hex}")
+
+    # Broadcast the BTC signed transaction
+    btc_tx_id = TxFetcher.sendrawtransaction(signed_tx_hex, network)
+    print(f"BTC tx id: {btc_tx_id}")
+
+    # Repost the CKB virtual tx and BTC tx id to the Queue Service
+    rpc.report_rgbpp_ckb_tx_btc_txid({
+        'ckb_virtual_tx_result': ckb_virtual_tx_result,
+        'btc_tx_id': btc_tx_id
+    })
+
+    # Check the RGB++ TX state from the Queue Service every 30 seconds
+    while True:
+        response = rpc.get_rgbpp_tx_state({
+            'btc_tx_id': btc_tx_id,
+            'params': {
+                'with_data': False
+            }
+        })
+        state = response["state"]
+        print(f"RGB++ TX state: {state}")
+
+        if (state == "completed"):
+            ckb_tx_hash = rpc.get_rgbpp_ckb_tx_hash({'btc_tx_id': btc_tx_id})
+            print(f"RGB++ assets have been completed and CKB tx hash: {ckb_tx_hash}")
+            break
+        elif (state == "failed"):
+            print(f"RGB++ assets have been failed and the reason is {response["failed_reason"]}")
+            break
+        else:
+            time.sleep(INTERVAL_TIME_SECONDS)
+
+
+# Pelase replace the correct parameters with your own
 transfer_rgbpp_on_btc({
+    # xUDT type args which can be found in the CKB explorer or the logs from your RGB++ issue transaction
     'xudt_type_args': '0x562e4e8a2f64a3e9c24beb4b7dd002d0ad3b842d0cc77924328e36ad114e3ebe',
-    'rgbpp_lock_args_list': ['0x000000003df7c4e1e9a6c366d8d8b45390025e28c515254f1fd24f189e53d45534d37707'],
+    # RGB++ lock args is the RGB++ lock script args which you can find in the CKB explorer
+    # The args inludes two parts: btc tx output index(little endien u32) and btc tx id(32 bytes)
+    # The btc tx id displayed on BTC explorer is different from the btc tx id in the RGB++ lock args. They are in reverse byte order
+    'rgbpp_lock_args_list': ['0x01000000677baa20e892f1dd66bc62934182a31809e0f0bbbe440ea46794fb711c98c4f9'],
     'transfer_amount': hex(800 * 10 ** 8),
-    'from_btc_address': 'tb1qh65mw2nq9l4647ddga83fhmted3deeq5398axk',
-    'to_btc_address': 'tb1qh65mw2nq9l4647ddga83fhmted3deeq5398axk'
+    'from_btc_address': 'tb1qs4n7d4c7n242uyw26gcwvmurhnrt2he84zk2cr',
+    'to_btc_address': 'tb1qs4n7d4c7n242uyw26gcwvmurhnrt2he84zk2cr'
 })
