@@ -9,11 +9,11 @@ README = os.path.join(HERE, 'README.md')
 with io.open(README, encoding='utf-8') as f:
     long_description = f.read()
 
-VERSION = os.path.join(HERE, 'ckb', 'version.py')
+VERSION = os.path.join(HERE, 'rgbpp', '__init__.py')
 with io.open(VERSION, encoding='utf-8') as f:
     package = {}
     exec(f.read(), package)
-    version = package['VERSION']
+    version = package['__version__']
 
 setup(name='rgbpp-sdk-python',
       version=version,
@@ -25,7 +25,8 @@ setup(name='rgbpp-sdk-python',
       author_email='duanyytop@gmail.com',
       license='MIT',
       packages=find_packages(),
-      install_requires=['jsonrpcclient', 'requests', 'typing-extensions'],
+      install_requires=['jsonrpcclient', 'requests', 'typing-extensions', 'buidl'],
       zip_safe=False,
       include_package_data=True,
       )
+      
