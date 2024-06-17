@@ -46,3 +46,6 @@ RgbppCkbTxHashReq = TypedDict('RgbppCkbTxHashReq', {
     'btc_tx_id': Hex,
 })
 
+BtcTxSendReq = TypedDict('BtcTxSendReq', {
+    'tx_hex': Hex
+})

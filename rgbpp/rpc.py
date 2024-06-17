@@ -2,7 +2,7 @@ import os
 import requests
 import jsonrpcclient
 
-from .types import Hex, RgbppTransferReq, RgbppTransferResp, Version, RgbppTxStateReq, RgbppTxStateResp, RgbppTxReportReq, RgbppCkbTxHashReq
+from .types import Hex, RgbppTransferReq, RgbppTransferResp, Version, RgbppTxStateReq, RgbppTxStateResp, RgbppTxReportReq, RgbppCkbTxHashReq, BtcTxSendReq
 
 DEFAULT_ENDPOINT = os.environ.get('RGBPP_SDK_SERVICE_URL', 'http://127.0.0.1:3000/json-rpc')
 
@@ -31,6 +31,9 @@ class RPCClient:
     
     def get_rgbpp_ckb_tx_hash(self, params: RgbppCkbTxHashReq) -> Hex:
         return self.request('get_rgbpp_ckb_tx_hash', params)
+
+    def send_btc_transaction(self, params: BtcTxSendReq) -> Hex:
+        return self.request('send_btc_transaction', params)
 
     def get_version(self) -> Version:
         return self.request('get_version')
