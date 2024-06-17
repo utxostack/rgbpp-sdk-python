@@ -1,5 +1,5 @@
 jsonrpcclient==4.0.3
 requests==2.32.3
 typing-extensions==4.12.1
-buidl @ git+https://github.com/buidl-bitcoin/buidl-python@c0b7d57
+buidl==0.2.36
 

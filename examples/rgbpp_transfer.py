@@ -1,5 +1,5 @@
 from io import BytesIO
-from buidl import HDPrivateKey, NamedHDPublicKey, PSBT, read_varstr, TxFetcher
+from buidl import HDPrivateKey, NamedHDPublicKey, PSBT, read_varstr
 import requests
 import threading
 import time
@@ -51,7 +51,7 @@ def transfer_rgbpp_on_btc(params: RgbppTransferReq):
     print(f"BTC signed tx: {signed_tx_hex}")
 
     # Broadcast the BTC signed transaction
-    btc_tx_id = TxFetcher.sendrawtransaction(signed_tx_hex, network)
+    btc_tx_id = rpc.send_btc_transaction({ 'tx_hex': signed_tx_hex })
     print(f"BTC tx id: {btc_tx_id}")
 
     # Repost the CKB virtual tx and BTC tx id to the Queue Service
@@ -89,7 +89,7 @@ transfer_rgbpp_on_btc({
     # RGB++ lock args is the RGB++ lock script args which you can find in the CKB explorer
     # The args inludes two parts: btc tx output index(little endien u32) and btc tx id(32 bytes)
     # The btc tx id displayed on BTC explorer is different from the btc tx id in the RGB++ lock args. They are in reverse byte order
-    'rgbpp_lock_args_list': ['0x01000000677baa20e892f1dd66bc62934182a31809e0f0bbbe440ea46794fb711c98c4f9'],
+    'rgbpp_lock_args_list': ['0x010000002d0ac46d188cc3e69158e99623caa3e843b311c293cbcb9b389e62edee0e5b39'],
     'transfer_amount': hex(800 * 10 ** 8),
     'from_btc_address': 'tb1qs4n7d4c7n242uyw26gcwvmurhnrt2he84zk2cr',
     'to_btc_address': 'tb1qs4n7d4c7n242uyw26gcwvmurhnrt2he84zk2cr'
