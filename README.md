@@ -1,6 +1,6 @@
 # rgbpp-sdk-python
 
-This repository offers essential utilities for RGB++ asset integration using the [RGB++ SDK Service](https://github.com/ckb-cell/rgbpp-sdk/tree/feat/rgbpp-sdk-service).
+This repository offers essential utilities for RGB++ asset integration using the [RGB++ SDK Service](https://github.com/ckb-cell/rgbpp-sdk/tree/develop/apps/service).
 
 ## Start RGB++ SDK Service
 
