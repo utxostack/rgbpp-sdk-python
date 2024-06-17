@@ -28,26 +28,25 @@ Update the configuration values:
 # testnet for CKB and BTC Testnet and mainnet for CKB and BTC Mainnet, the default value is testnet
 NETWORK=testnet
 
-# The Bitcoin Testnet type including Testnet3 and Signet, default value is Testnet3
+# The Bitcoin Testnet type including Testnet3 and Signet, the default value is Signet
 # Testnet3: https://mempool.space/testnet
 # Signet: https://mempool.space/signet
-BTC_TESTNET_TYPE=Testnet3
+BTC_TESTNET_TYPE=Signet
 
-# CKB node url which should be matched with NETWORK
+# CKB node url which should match NETWORK
 CKB_RPC_URL=https://testnet.ckb.dev
 
-# The BTC assets api url which should be matched with NETWORK and BTC_TESTNET_TYPE
-# The BTC Testnet Service url is: https://btc-assets-api.testnet.mibao.pro
+# The BTC assets api url which should match NETWORK and BTC_TESTNET_TYPE
+# The BTC Testnet Service url is: https://api.testnet.rgbpp.io
 # The BTC Signet Service url is: https://api.signet.rgbpp.io
-BTC_SERVICE_URL=https://btc-assets-api.testnet.mibao.pro
+BTC_SERVICE_URL=https://api.signet.rgbpp.io
 
-# The BTC assets api token which should be matched with NETWORK and BTC_TESTNET_TYPE
+# The BTC assets api token which should match NETWORK and BTC_TESTNET_TYPE
 # To get an access token of BTC Testnet, please refer to https://github.com/ckb-cell/rgbpp-sdk/tree/develop/packages/service#get-an-access-token
-# To get an access token of BTC Signet, please refer to https://api.signet.rgbpp.io/docs/static/index.html#/Token/post_token_generate
 BTC_SERVICE_TOKEN=
 
-# The BTC assets api origin which should be matched with NETWORK and BTC_TESTNET_TYPE
-BTC_SERVICE_ORIGIN=https://btc-assets-api.testnet.mibao.pro
+# The BTC assets api origin which should match NETWORK and BTC_TESTNET_TYPE
+BTC_SERVICE_ORIGIN=https://btc-test.app
 ```
 
 ### Run RGB++ SDK Service

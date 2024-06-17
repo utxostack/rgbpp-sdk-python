@@ -39,7 +39,7 @@ class TestRpc(TestCase):
         }
         response = rpc.get_rgbpp_tx_state(request)
         self.assertEqual(response["state"], "completed")
-        # See the response of the API https://btc-assets-api.testnet.mibao.pro/docs/static/index.html#/RGB%2B%2B/get_rgbpp_v1_transaction__btc_txid__job
+        # See the response of the API https://api.testnet.rgbpp.io/docs/static/index.html#/RGB%2B%2B/get_rgbpp_v1_transaction__btc_txid__job
         self.assertEqual(response["data"]["ckb_virtual_result"]["ckb_raw_tx"]["version"], "0x0")
 
     def test_get_rgbpp_ckb_tx_hash(self):
