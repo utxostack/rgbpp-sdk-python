@@ -88,3 +88,10 @@ Please make sure the RGB++ SDK Service is running
 ```shell
 python3 -m unittest
 ```
+
+## Reference
+
+There are BTC and CKB transactions for RGB++ transfer on BTC Signet network as following:
+
+BTC TX: https://mempool.space/signet/tx/395b0eeeed629e389bcbcb93c211b343e8a3ca2396e95891e6c38c186dc40a2d
+CKB TX: https://pudge.explorer.nervos.org/transaction/0xf021237b6a6af7fa5628e4a69736efa5f5fed9a858439e6e9d612097f1bf38be
