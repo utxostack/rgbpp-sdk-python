@@ -14,7 +14,7 @@ SEED = b'Hello RGB++'
 # Please make sure you have enough BTC and RGB++ Assets, the example is only for RGB++ transfer on BTC.
 # You can get RGB++ assets using the [rgbpp-sdk examples](https://github.com/ckb-cell/rgbpp-sdk/tree/develop/examples/rgbpp/xudt)
 def transfer_rgbpp_on_btc(params: RgbppTransferReq):
-    # Please make sure the newtork of BTC is correct, including mainnet, testnet and signet
+    # Please make sure the network of BTC is correct, including mainnet, testnet and signet
     network = "signet"
 
     # HD Key (note the named_key path only contains 4 layers)
@@ -54,7 +54,7 @@ def transfer_rgbpp_on_btc(params: RgbppTransferReq):
     btc_tx_id = rpc.send_btc_transaction({ 'tx_hex': signed_tx_hex })
     print(f"BTC tx id: {btc_tx_id}")
 
-    # Repost the CKB virtual tx and BTC tx id to the Queue Service
+    # Re-post the CKB virtual tx and BTC tx id to the Queue Service
     rpc.report_rgbpp_ckb_tx_btc_txid({
         'ckb_virtual_tx_result': ckb_virtual_tx_result,
         'btc_tx_id': btc_tx_id
@@ -82,12 +82,12 @@ def transfer_rgbpp_on_btc(params: RgbppTransferReq):
             time.sleep(INTERVAL_TIME_SECONDS)
 
 
-# Pelase replace the correct parameters with your own
+# Please replace the correct parameters with your own
 transfer_rgbpp_on_btc({
     # xUDT type args which can be found in the CKB explorer or the logs from your RGB++ issue transaction
     'xudt_type_args': '0x562e4e8a2f64a3e9c24beb4b7dd002d0ad3b842d0cc77924328e36ad114e3ebe',
     # RGB++ lock args is the RGB++ lock script args which you can find in the CKB explorer
-    # The args inludes two parts: btc tx output index(little endien u32) and btc tx id(32 bytes)
+    # The args includes two parts: btc tx output index(little endian u32) and btc tx id(32 bytes)
     # The btc tx id displayed on BTC explorer is different from the btc tx id in the RGB++ lock args. They are in reverse byte order
     'rgbpp_lock_args_list': ['0x010000002d0ac46d188cc3e69158e99623caa3e843b311c293cbcb9b389e62edee0e5b39'],
     'transfer_amount': hex(800 * 10 ** 8),
